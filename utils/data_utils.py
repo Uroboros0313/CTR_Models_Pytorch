@@ -11,6 +11,7 @@ from itertools import product
 import pandas as pd
 import numpy as np
 
+
 def load_data(data_dir:Path, dataset:str='criteo'):
     if not isinstance(data_dir, Path):
         data_dir = Path(data_dir)
@@ -25,7 +26,24 @@ def load_data(data_dir:Path, dataset:str='criteo'):
         pass
     
     return train, test
+
+def manual_feature_cross(df:pd.DataFrame, cross_pairs:List=[])->pd.DataFrame:
+    '''
+    WideDeep论文中的手动特征交叉
+    '''
+    for c1_name, c2_name in cross_pairs:
+        ss1, ss2 = df[c1_name], df[c2_name]
+        c1 = ss1.unique()
+        c2 = ss2.unique()
+        
+        combs = list(product(c1, c2))
+        combs_id = range(len(combs))
+        map_ = dict(zip(combs, combs_id))
+        ss_comb = pd.Series(zip(ss1, ss2)).map(map_)
+        df = pd.concat([df, pd.get_dummies(ss_comb, prefix=f"CP_{c1_name}_{c2_name}")], axis=1)
     
+    return df
+
     
 class DataTable():
     def __init__(
@@ -44,6 +62,8 @@ class DataTable():
     
     def preprocess_data(
         self,
+        id_col=None,
+        label_col=None,
         num_scale='minmax',
         cat_enc='label',
         num_fill_method='mean',
@@ -60,6 +80,20 @@ class DataTable():
     
     def __encode(self):
         pass
+    
+    def __infer_metadata(self, df:pd.DataFrame, dataset=None)->Dict[str, List]:
+        '''
+        区分类别型数据与数值型数据
+        '''
+        num_cols = df.select_dtypes(include='number').columns.to_list()
+        cat_cols = df.select_dtypes(include=object).columns.to_list()
+            
+        for n_col in num_cols:
+            if df[n_col].nunique() < len(df) * 0.01:
+                num_cols.remove(n_col)
+                cat_cols.append(cat_cols)
+        
+        self.metadata = {'num_cols': num_cols, 'cat_cols': cat_cols}
     
     @staticmethod
     def label_encoder(series):
@@ -85,41 +119,6 @@ class DataTable():
         series = (series - ss_mean) / ss_std
         return series, ss_mean, ss_std
 
-    
-    def __infer_metadata(self, df:pd.DataFrame, dataset=None)->Dict[str, List]:
-        '''
-        区分类别型数据与数值型数据
-        '''
-        num_cols = df.select_dtypes(include='number').columns.to_list()
-        cat_cols = df.select_dtypes(include=object).columns.to_list()
-            
-        for n_col in num_cols:
-            if df[n_col].nunique() < len(df) * 0.01:
-                num_cols.remove(n_col)
-                cat_cols.append(cat_cols)
-        
-        self.metadata = {'num_cols': num_cols, 'cat_cols': cat_cols}
-        
-
-
-def manual_feature_cross(df:pd.DataFrame, cross_pairs:List=[])->pd.DataFrame:
-    '''
-    WideDeep论文中的手动特征交叉
-    '''
-    for c1_name, c2_name in cross_pairs:
-        ss1, ss2 = df[c1_name], df[c2_name]
-        c1 = ss1.unique()
-        c2 = ss2.unique()
-        
-        combs = list(product(c1, c2))
-        combs_id = range(len(combs))
-        map_ = dict(zip(combs, combs_id))
-        ss_comb = pd.Series(zip(ss1, ss2)).map(map_)
-        df = pd.concat([df, pd.get_dummies(ss_comb, prefix=f"CP_{c1_name}_{c2_name}")], axis=1)
-    
-    return df
-
-    
 
     
 class DataCenter():
