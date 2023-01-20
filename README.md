@@ -28,6 +28,6 @@
 ## Log
 
 - 2023-01-20: 基本框架设计
-  - 数据: `./data`目录下, 采用`data_utils.load_data`读入, `data_utils.preprocess_data`预处理, `data_utils.DataCenter`进行存储与载入, 半私有化数据类型推理, 输入数据分为连续型与类别型(暂定, 时间戳等数据类型后续再考虑)
+  - 数据: `./data`目录下, 采用`data_utils.load_data`读入, `data_utils.DataTable`类进行列类型推理以及预处理, `data_utils.DataCenter`进行存储与载入, 私有化数据类型推理, 输入数据分为连续型与类别型(暂定, 时间戳等数据类型后续再考虑)
   - 模型: `./models`目录下, 将模型分为多种Layer进行拼接, Layer保存在`./models/layers`内
   - 训练: `./utils/trainer`目录下, 深度模型采用`trainer.DeepCTRTrainer`训练
