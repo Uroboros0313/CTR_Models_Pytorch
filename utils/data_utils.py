@@ -44,13 +44,40 @@ def manual_feature_cross(df:pd.DataFrame, cross_pairs:List=[])->pd.DataFrame:
 
 
 def preprocess_data():
+    '''
+    1.缺失值填充
+    2.标准化
+    3.标签编码
+    4.补充metadata
+    '''
     pass
 
     
-def _type_infer():
-    pass
-
-
+def _infer_metadata(df:pd.DataFrame, dataset=None)->Dict[str, List]:
+    '''
+    区分类别型数据与数值型数据
+    '''
+    if dataset == None:
+        num_cols = df.select_dtypes(include='number').columns.to_list()
+        cat_cols = df.select_dtypes(include=object).columns.to_list()
+        
+        for n_col in num_cols:
+            if df[n_col].nunique() < len(df) * 0.05:
+                num_cols.remove(n_col)
+                cat_cols.append(cat_cols)
+                
+    elif dataset == 'criteo':
+        cols = df.columns
+        num_cols = cols[df.columns.str.startswith('I')].to_list()
+        cat_cols = cols[df.columns.str.startswith('C')].to_list()
+        
+    else:
+        pass
+    
+    metadata = {'num_cols': num_cols, 'cat_cols': cat_cols}
+    
+    return metadata
+    
 class DataCenter():
     pass
 
