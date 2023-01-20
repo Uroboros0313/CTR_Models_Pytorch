@@ -56,13 +56,13 @@ class DeepCTRTrainer():
         
         self.model.eval()
         with torch.no_grad():
-            ys = []
+            labels = []
             preds = []
             for *inputs, label in loader:
                 pred = self._inference(inputs, label)
                 preds.append(pred)
-                ys.append(y)
+                labels.append(label)
                 
             preds = torch.cat(preds, dim=0).cpu().numpy()
-            ys = torch.cat(ys, dim=0).cpu().numpy()
+            labels = torch.cat(labels, dim=0).cpu().numpy()
     
