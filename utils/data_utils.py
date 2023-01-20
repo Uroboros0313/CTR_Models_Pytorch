@@ -4,7 +4,7 @@
 #@Author  :   Li Suchi 
 #@Email   :   lsuchi@126.com
 
-from typing import List, Dict
+from typing import List, Dict, Union, Optional
 from pathlib import Path
 from itertools import product
 
@@ -48,9 +48,9 @@ def manual_feature_cross(df:pd.DataFrame, cross_pairs:List=[])->pd.DataFrame:
 class DataTable():
     def __init__(
         self,
-        train_set,
-        test_set=None,
-        metadata=None) -> None:
+        train_set:pd.DataFrame,
+        test_set:pd.DataFrame=None,
+        metadata:Optional[Dict[str, List[str]]]=None) -> None:
         
         self.train_set = train_set
         self.test_set = test_set
@@ -62,17 +62,17 @@ class DataTable():
     
     def preprocess_data(
         self,
-        id_col=None,
-        label_col=None,
-        num_scale='minmax',
-        cat_enc='label',
-        num_fill_method='mean',
+        id_col:str=None,
+        label_col:str=None,
+        num_scale:str='minmax',
+        cat_enc:str='label',
+        num_fill_method:Union[str, float, int]='mean',
         cat_fill_val='<UNKNOWN>'):
         '''
         1.缺失值填充
         2.标准化
         3.标签编码
-        4.补充metadata
+        4.补充metadata, 记录类别数量/记录encoder
         '''
         
     def __fill_null(self):
@@ -81,7 +81,7 @@ class DataTable():
     def __encode(self):
         pass
     
-    def __infer_metadata(self, df:pd.DataFrame, dataset=None)->Dict[str, List]:
+    def __infer_metadata(self, df:pd.DataFrame)->Dict[str, List]:
         '''
         区分类别型数据与数值型数据
         '''
@@ -122,5 +122,13 @@ class DataTable():
 
     
 class DataCenter():
-    pass
+    def __init__(self) -> None:
+        self.datatable = None
+        self.train_loader = None
+        self.valid_loader = None
+        self.test_loader = None
+        
+    
+    def generate_loader(self):
+        pass
 
