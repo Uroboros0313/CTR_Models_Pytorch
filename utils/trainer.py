@@ -58,7 +58,7 @@ class DeepCTRTrainer():
         with torch.no_grad():
             ys = []
             preds = []
-            for *inputs, y in loader:
+            for *inputs, label in loader:
                 pred = self._inference(inputs, label)
                 preds.append(pred)
                 ys.append(y)
